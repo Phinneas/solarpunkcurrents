@@ -4,26 +4,26 @@ import { log } from "../logger.js";
 export async function generateSearchQueries(): Promise<string[]> {
   const today = new Date().toISOString().substring(0, 10);
 
-  const prompt = `You are an AI news and tutorial researcher. Today's date is ${today}.
+  const prompt = `You are a solar and clean energy news researcher. Today's date is ${today}.
 
-Generate 8-12 search queries to find the most important AI news stories AND the best AI tutorials/guides from today and the past few days.
+Generate 8-12 search queries to find the most important solar and clean energy news stories AND the best analysis/guides from today and the past few days.
 
 ## News queries (generate 5-7):
-- New AI model releases, benchmarks, and capabilities
-- AI startup funding rounds and acquisitions
-- AI policy, regulation, and government actions
-- Open-source AI projects and tools
-- AI research breakthroughs and papers
-- Major tech company AI announcements (Google, OpenAI, Anthropic, Meta, Microsoft, etc.)
-- AI applications in various industries
-- Model Context Protocol (MCP) tools and integrations
+- New solar, wind, or battery storage project announcements and deployments
+- Clean energy policy, regulation, incentives, and government actions
+- Renewable energy market trends, pricing, and supply chain developments
+- Grid modernization, transmission, and distributed energy news
+- Clean energy research breakthroughs and new technology developments
+- Major company announcements in solar, storage, EVs, or electrification
+- Community solar, co-ops, and environmental justice developments
+- Offshore wind, geothermal, hydrogen, and other emerging renewables
 
-## Tutorial/guide queries (generate 3-5):
-- Practical tutorials on fine-tuning, training, or deploying AI models
-- Step-by-step guides for building AI agents or applications
-- How-to content for popular AI frameworks and tools (LangChain, LlamaIndex, HuggingFace, etc.)
-- AI coding tutorials and developer guides
-- Beginner-friendly AI/ML explainers and walkthroughs
+## Analysis/guide queries (generate 3-5):
+- Explainers on clean energy policy, tax credits, or regulatory changes
+- Guides on residential solar, battery storage, or heat pump installations
+- Analysis of renewable energy market data, deployment statistics, or forecasts
+- Technical deep-dives on solar cell technology, battery chemistry, or grid integration
+- Beginner-friendly explainers on the energy transition and decarbonization
 
 Each query should be specific enough to return relevant results but broad enough to capture multiple stories. Use natural search language, not boolean operators.
 
@@ -59,15 +59,15 @@ Respond with valid JSON in this exact format:
 
 function getDefaultQueries(): string[] {
   return [
-    "latest AI model release announcement today",
-    "AI startup funding round 2025",
-    "new open source AI tool released",
-    "AI regulation policy news",
-    "artificial intelligence research breakthrough",
-    "OpenAI Google Anthropic Meta AI news",
-    "Model Context Protocol MCP tools and integrations",
-    "AI tutorial how to build agents guide",
-    "fine-tuning LLM tutorial step by step",
-    "AI coding assistant tutorial beginner guide",
+    "latest solar energy project announcement today",
+    "clean energy policy regulation news 2025",
+    "new battery storage deployment news",
+    "renewable energy market trends pricing",
+    "solar panel technology breakthrough research",
+    "grid modernization transmission news",
+    "community solar co-op clean energy news",
+    "heat pump electrification deployment guide",
+    "residential solar battery storage installation guide",
+    "offshore wind geothermal hydrogen energy news",
   ];
 }

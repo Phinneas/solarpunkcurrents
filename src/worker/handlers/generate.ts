@@ -4,7 +4,7 @@
  *
  * Reads content for the last N days from R2, runs the full LLM generation
  * pipeline (select stories → write sections → write intro → write shortlist
- * → assemble), then enqueues the result for Ghost publishing.
+ * → assemble), then enqueues the result for publishing as a draft GitHub post.
  */
 
 import { Env } from '../index.js';
@@ -42,21 +42,25 @@ export async function handleGenerateQueue(
       process.env.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;
       process.env.MISTRAL_API_KEY = env.MISTRAL_API_KEY;
       process.env.MOONSHOT_API_KEY = env.MOONSHOT_API_KEY;
-      if (env.Exa) process.env.EXA_API_KEY = env.Exa;
+      if (env.EXA_API_KEY) process.env.EXA_API_KEY = env.EXA_API_KEY;
       if (env.TAVILY_API_KEY) process.env.TAVILY_API_KEY = env.TAVILY_API_KEY;
+      if (env.PEXELS_API_KEY) process.env.PEXELS_API_KEY = env.PEXELS_API_KEY;
 
       // Fetch previous newsletter from KV for deduplication guidance
       const previousNewsletter = await env.INGEST_STATE.get('newsletter:previous') ?? undefined;
 
       // Run the full generation pipeline
       console.log('[Stage 5] Starting newsletter generation...');
-      const newsletter = await generateNewsletter(
+      const { newsletter, heroImage } = await generateNewsletter(
         message.dates,
         env.CONTENT_BUCKET,
         previousNewsletter
       );
 
       console.log(`[Stage 5] Newsletter generated (${newsletter.length} chars)`);
+      if (heroImage) {
+        console.log(`[Stage 5] Hero image: ${heroImage.url}`);
+      }
 
       // Mark as generated
       await env.INGEST_STATE.put(dedupKey, JSON.stringify({
@@ -69,16 +73,23 @@ export async function handleGenerateQueue(
         expirationTtl: 60 * 60 * 24 * 14,
       });
 
-      // Enqueue for Ghost publishing
+      // Enqueue for publishing
       await env.PUBLISH_QUEUE.send({
         type: 'publish',
         generateId: message.generateId,
         newsletter,
         dates: message.dates,
+        heroImage: heroImage ? {
+          url: heroImage.url,
+          alt: heroImage.alt,
+          photographer: heroImage.photographer,
+          photographerUrl: heroImage.photographerUrl,
+          pexelsUrl: heroImage.pexelsUrl,
+        } : null,
         timestamp: Date.now(),
       });
 
-      console.log('[Stage 5] Enqueued for Ghost publishing');
+      console.log('[Stage 5] Enqueued for publishing');
 
     } catch (error) {
       console.error(`[Stage 5] Generation failed for ${message.generateId}:`, error);

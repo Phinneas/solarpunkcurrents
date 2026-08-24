@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { chatWithKimi } from "../llm/kimi.js";
+import { chatWithClaude } from "../llm/anthropic.js";
 import { log } from "../logger.js";
 import type { SelectedStory } from "./select-stories.js";
 
@@ -9,39 +9,39 @@ export interface SubjectLineResult {
   alternativeSubjectLines: string[];
 }
 
-const SUBJECT_LINE_EXAMPLES = `- AI finds cancers with 99% accuracy
-- Claude (finally) searches the web
-- OpenAI's regulatory power play
-- Ilya's secret ASI roadmap
-- Apple's AI emergency
-- DeepMind's AI math genius
-- Mistral's speedy new assistant
-- OpenAI goes nuclear
-- AI's tutoring breakthrough
-- OpenAI's $500B Stargate Project
-- Meta's Manhattan-sized AI play
-- OpenAI's first AI agent arrives
-- OpenAI's o3 and o4-mini arrive
-- Chipmaking rivals join forces
-- Amazon is joining the reasoning race
-- Claude enters the reasoning era
-- Figure's home robot breakthrough
-- OpenAI's ex-CTO launches rival lab
-- OpenAI's new GPT-5 roadmap
-- AI workforce coming: Anthropic's one-year prediction
-- The state of AI in 2025 (according to Stanford)
-- OpenAI's dev-focused GPT-4.1
-- Google's new AI video generator rivals Sora
-- China declares AI independence`;
+const SUBJECT_LINE_EXAMPLES = `- US solar installs hit record 11.8 GW in Q1
+- California's community solar program launches
+- Battery storage costs hit new low
+- NREL roadmap: 80% renewables by 2030
+- China's solar manufacturing surges past target
+- Texas grid runs on 100% renewables (briefly)
+- The co-op solar movement goes national
+- Offshore wind breakthrough in the North Sea
+- Heat pump sales outpace gas boilers in Europe
+- Grid-scale battery project comes online in Arizona
+- EU greenlights new transmission superhighway
+- Solar panel prices drop to historic lows
+- New perovskite-silicon cell hits 33% efficiency
+- Distributed solar could cut peak demand 40%
+- Community microgrid powers town through blackout
+- The IRA's clean energy credits start flowing
+- Wind energy smashes production records
+- Green hydrogen plant breaks ground in Texas
+- US clears path for 30 GW of new transmission
+- Rural co-ops lead the charge on clean energy
+- The state of solar in 2025 (according to SEIA)
+- Argentina launches national solar push
+- Perovskite tandem cells edge closer to commercial
+- Germany hits 60% renewable electricity milestone`;
 
 export async function generateSubjectLine(
   stories: SelectedStory[],
   contentItems: Array<{ identifier: string; content: string }>,
   date: string
 ): Promise<SubjectLineResult> {
-  const prompt = `**Role:** Expert Email Copywriter Specializing in AI Content Engagement
+  const prompt = `**Role:** Expert Email Copywriter Specializing in Clean Energy Content Engagement
 
-**Core Objective:** Optimize email engagement elements (Subject Line, Pre-header Text) for an AI newsletter to maximize open rates, based on provided story data.
+**Core Objective:** Optimize email engagement elements (Subject Line, Pre-header Text) for the Solarpunk Currents newsletter to maximize open rates, based on provided story data.
 
 Today's date for the newsletter is *${date}*.
 
@@ -59,7 +59,7 @@ You Should Avoid:
 
 Your pre-header text should be a straightforward teaser (15-20 words max) that teases and hints at what other stories will be included on this newsletter (outside of the main story). You should follow the "PLUS:" format for the pre-header text. DO NOT end this pre-header text with a period "." character.
 
-You must prefer concrete specificity. It is better to reference a specific model instead of a generic term like "Google's AI" or "Meta's AI".
+You must prefer concrete specificity. It is better to reference a specific project, policy, or company instead of a generic term like "solar energy" or "clean energy".
 
 ## Great Subject Line Examples
 
@@ -78,9 +78,9 @@ Respond with valid JSON:
 
 The subject line MUST be 7-9 words and focus exclusively on the lead story (first story).`;
 
-  const response = await chatWithKimi({
+  const response = await chatWithClaude({
     system:
-      "You are an expert email copywriter. Always respond with valid JSON.",
+      "You are an expert email copywriter for Solarpunk Currents, a newsletter covering solar energy and the clean energy transition. Always respond with valid JSON.",
     prompt,
     maxTokens: 4096,
   });

@@ -2,7 +2,17 @@ import { Mistral } from "@mistralai/mistralai";
 import { config } from "../config.js";
 import type { LLMClient } from "./types.js";
 
-const client = new Mistral({ apiKey: config.mistral.apiKey });
+let client: Mistral | null = null;
+let lastApiKey = "";
+
+function getClient(): Mistral {
+  const apiKey = config.mistral.apiKey || process.env?.MISTRAL_API_KEY || "";
+  if (!client || apiKey !== lastApiKey) {
+    client = new Mistral({ apiKey });
+    lastApiKey = apiKey;
+  }
+  return client;
+}
 
 export const mistralClient: LLMClient = {
   async chat({ system, prompt, maxTokens = 4096 }) {
@@ -10,7 +20,7 @@ export const mistralClient: LLMClient = {
     if (system) messages.push({ role: "system", content: system });
     messages.push({ role: "user", content: prompt });
 
-    const response = await client.chat.complete({
+    const response = await getClient().chat.complete({
       model: "mistral-large-latest",
       messages,
       maxTokens,

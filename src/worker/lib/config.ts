@@ -3,10 +3,8 @@
  */
 
 export interface WorkerConfig {
-  firecrawl: {
+  parallel: {
     apiKey: string;
-    timeout: number;
-    maxRetries: number;
   };
   anthropic: {
     apiKey: string;
@@ -16,10 +14,6 @@ export interface WorkerConfig {
   };
   moonshot: {
     apiKey: string;
-  };
-  reddit: {
-    clientId?: string;
-    clientSecret?: string;
   };
   kv: {
     cacheTtl: {
@@ -39,10 +33,8 @@ export interface WorkerConfig {
 
 export function getConfig(env: Record<string, string>): WorkerConfig {
   return {
-    firecrawl: {
-      apiKey: env.FIRECRAWL_API_KEY,
-      timeout: 30000, // 30 seconds
-      maxRetries: 2,
+    parallel: {
+      apiKey: env.PARALLEL_API_KEY ?? '',
     },
     anthropic: {
       apiKey: env.ANTHROPIC_API_KEY,
@@ -52,10 +44,6 @@ export function getConfig(env: Record<string, string>): WorkerConfig {
     },
     moonshot: {
       apiKey: env.MOONSHOT_API_KEY,
-    },
-    reddit: {
-      clientId: env.REDDIT_CLIENT_ID,
-      clientSecret: env.REDDIT_CLIENT_SECRET,
     },
     kv: {
       cacheTtl: {

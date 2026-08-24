@@ -42,6 +42,9 @@ declare global {
     httpEtag: string;
     httpMetadata?: { contentType?: string };
     customMetadata?: Record<string, string>;
+    text(): Promise<string>;
+    arrayBuffer(): Promise<ArrayBuffer>;
+    json<T>(): Promise<T>;
   }
 
   interface R2PutOptions {

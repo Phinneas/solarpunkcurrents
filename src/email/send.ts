@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 /** Load logo as base64 data URI for email embedding. */
 function loadLogoDataUri(): string {
   try {
-    const logoPath = join(__dirname, "../../assets/brainscriblr-logo.png");
+    const logoPath = join(__dirname, "../../assets/solarpunk-logo.png");
     const buf = readFileSync(logoPath);
     return `data:image/png;base64,${buf.toString("base64")}`;
   } catch {
@@ -77,7 +77,7 @@ export async function sendNewsletterEmail(
   }
 
   const resend = new Resend(apiKey);
-  const from = params.from ?? "BrainScriblr <onboarding@resend.dev>";
+  const from = params.from ?? "Solarpunk Currents <onboarding@resend.dev>";
   const htmlContent =
     params.htmlBody || wrapInEmailTemplate(markdownToBasicHtml(params.markdownBody));
 
@@ -105,7 +105,7 @@ export async function sendNewsletterEmail(
 function wrapInEmailTemplate(bodyHtml: string): string {
   const logoDataUri = loadLogoDataUri();
   const logoHtml = logoDataUri
-    ? `<img src="${logoDataUri}" alt="BrainScriblr" width="48" height="48" style="display:block;border-radius:10px;" />`
+    ? `<img src="${logoDataUri}" alt="Solarpunk Currents" width="48" height="48" style="display:block;border-radius:10px;" />`
     : "";
 
   return `<!DOCTYPE html>
@@ -139,14 +139,14 @@ function wrapInEmailTemplate(bodyHtml: string): string {
   <div class="email-wrapper">
     <div class="header">
       <!--[if mso]>
-      <span class="header-title-fallback">BrainScriblr</span>
+      <span class="header-title-fallback">Solarpunk Currents</span>
       <![endif]-->
       <!--[if !mso]><!-->
       <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
         <tr>
           ${logoHtml ? `<td style="padding-right: 12px; vertical-align: middle;">${logoHtml}</td>` : ""}
           <td style="vertical-align: middle;">
-            <span class="header-title">BrainScriblr</span>
+            <span class="header-title">Solarpunk Currents</span>
           </td>
         </tr>
       </table>
@@ -156,8 +156,8 @@ function wrapInEmailTemplate(bodyHtml: string): string {
 ${bodyHtml}
     </div>
     <div class="footer">
-      <p>You're receiving this because you subscribed to <a href="#">BrainScriblr</a>.</p>
-      <p>AI news, tools &amp; trends — delivered fresh.</p>
+      <p>You're receiving this because you subscribed to <a href="#">Solarpunk Currents</a>.</p>
+      <p>Solar energy, renewables &amp; the clean energy transition — delivered fresh.</p>
     </div>
   </div>
 </body>

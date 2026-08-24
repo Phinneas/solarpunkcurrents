@@ -30,7 +30,7 @@ async function main() {
         previousNewsletter = readFileSync(prevNewsletterPath, "utf-8");
       }
 
-      const newsletter = await generateNewsletter(date, previousNewsletter);
+      const { newsletter } = await generateNewsletter(date, previousNewsletter);
 
       // Write to file and stdout
       const outputPath = `newsletter-${date}.md`;
@@ -205,7 +205,7 @@ async function main() {
         title,
         mobiledoc,
         status: "draft",
-        tags: ["newsletter", "AI"],
+        tags: ["newsletter", "solar", "energy"],
         custom_excerpt: excerpt || undefined,
       });
 
@@ -216,7 +216,7 @@ async function main() {
     }
 
     default: {
-      console.log(`AI Newsletter CLI\n\nUsage:\n  tsx src/cli.ts ingest                          Fetch & process all RSS feeds\n  tsx src/cli.ts generate <YYYY-MM-DD> [prev]    Generate newsletter for a date\n  tsx src/cli.ts ghost <YYYY-MM-DD> [file]       Push generated newsletter to Ghost as draft\n  tsx src/cli.ts email <YYYY-MM-DD> <recipient>  Send generated newsletter via email\n\nArguments:\n  <YYYY-MM-DD>   Date to generate newsletter for (must have ingested content)\n  [prev]         Optional path to previous newsletter markdown (for dedup)\n  <recipient>    Email address to send newsletter to\n\nEnvironment:\n  Copy .env.example to .env and fill in your API keys.\n  Required for email: RESEND_API_KEY, NEWSLETTER_RECIPIENTS (comma-separated)\n  Required for Ghost: GHOST_API_URL, GHOST_ADMIN_API_KEY, GHOST_CONTENT_API_KEY`);
+      console.log(`Solarpunk Currents CLI\n\nUsage:\n  tsx src/cli.ts ingest                          Fetch & process all RSS feeds\n  tsx src/cli.ts generate <YYYY-MM-DD> [prev]    Generate newsletter for a date\n  tsx src/cli.ts ghost <YYYY-MM-DD> [file]       Push generated newsletter to Ghost as draft (legacy)\n  tsx src/cli.ts email <YYYY-MM-DD> <recipient>  Send generated newsletter via email\n\nArguments:\n  <YYYY-MM-DD>   Date to generate newsletter for (must have ingested content)\n  [prev]         Optional path to previous newsletter markdown (for dedup)\n  <recipient>    Email address to send newsletter to\n\nEnvironment:\n  Copy .env.example to .env and fill in your API keys.\n  Required for email: RESEND_API_KEY, NEWSLETTER_RECIPIENTS (comma-separated)\n  Required for Ghost (legacy): GHOST_API_URL, GHOST_ADMIN_API_KEY, GHOST_CONTENT_API_KEY`);
       break;
     }
   }

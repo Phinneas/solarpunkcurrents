@@ -144,7 +144,7 @@ export async function uploadWithMetadata(
   await upload(
     `${uploadFileName}.md`,
     markdownContent,
-    `application/vnd.aitools.${metadata.type}+md`,
+    `application/vnd.solarpunkcurrents.${metadata.type}+md`,
     metaRecord
   );
 
@@ -152,7 +152,7 @@ export async function uploadWithMetadata(
   await upload(
     `${uploadFileName}.html`,
     htmlContent,
-    `application/vnd.aitools.${metadata.type}.raw+html`,
+    `application/vnd.solarpunkcurrents.${metadata.type}.raw+html`,
     metaRecord
   );
 }

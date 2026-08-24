@@ -20,64 +20,70 @@ export async function writeSection(params: {
 
   const prompt = `## Task and Purpose
 
-Create a single newsletter section focused on **AI developments, tools, and applications** that help professionals automate tasks, boost productivity, and stay on the cutting edge. You will be given details of a single section to write about and supporting source material. Use this to write this newsletter section.
+Create a single newsletter section for Solarpunk Currents, covering solar energy, renewable energy, the clean energy transition, and the solarpunk movement. You will be given details of a single section to write about and supporting source material. Use this to write this newsletter section.
 
 Today's date for the newsletter is *${date}*.
 
 ### Audience
 
-- **Tech-forward readers**—developers, entrepreneurs, AI enthusiasts, and early adopters.
-- Those looking for **new AI trends**, developments, and **real-world use cases** that can make their work more efficient.
+- Clean energy enthusiasts, climate-conscious readers, solarpunk community members, and activists following the energy transition.
+- They want real developments — not hype. They care about community power, climate justice, and actual deployments, not corporate pledges.
 
-### Style Inspiration
+### Editorial Style: BLUF (Bottom Line Up Front)
 
-- **Axios-like** and **Rundown** approach with **short, punchy paragraphs**, clear headers, bullet points, and a **"Why it matters"** or **"Bottom line"** section.
-- **Enthusiastic, optimistic, forward-looking** voice that highlights AI's future-shaping potential.
+**Lead with BLUF.** State the solution, initiative, or community win upfront. What's actually happening? Who's doing it? Real impact, real scale.
 
-### Additional Writing Guidelines
+**Support with narrative.** Include a specific story, example, or moment from the community — but only if it illustrates the facts. One concrete example per piece. Keep it grounded and brief.
 
-- Place verbs directly after helping verbs like "makes," "allows," "enables"
-- Emphasize user actions rather than abstract processes
-- Use clear subject-verb-object structure whenever possible
-- Keep sentences concise and purposeful
-- Avoid unnecessary nominalization and keep the language direct and dynamic.
-- Avoid technical jargon. Your writing should be easy to understand for non-technical readers.
+**Avoid aspirational fluff.** Focus on what's working now, not what could someday. Use accessible language. Cite sources. Be direct about both progress and remaining work.
+
+**Story shows why it matters; facts show it's real.**
 
 ### Section Structure
 
 Follow this structure when writing your newsletter segment:
 
-1. **The Scoop:** (should be bolded)
-  - Provide a **quick summary and overview** of the topic.
-  - This should be a brief 1-2 sentences.
-  - Start this section with **The Scoop:** followed by your 1-2 sentences.
+1. **The Bottom Line:** (should be bolded)
+  - Lead with the win, the deployment, the policy change — whatever is actually happening.
+  - Who's doing it? Where? At what scale?
+  - 2-3 sentences. No hedging, no "could" or "might." State what IS happening.
+  - Start this section with **The Bottom Line:** followed by your sentences.
 
-2. **Unpacked:** (should be bolded)
-  - Expand on **additional details** and context around the story.
-  - Formatted as a bulleted list where each bullet item is a single sentence.
-  - Use the \`-\` character for each bullet in this section.
-  - Provide 3 bullets. Each must be relevant and provide necessary context.
-  - Maximum of 1 link per bullet. Links must NOT be bold.
-  - Maximum of 1 bold phrase per bullet.
+2. **The Story:** (should be bolded)
+  - One concrete example, specific moment, or community story that illustrates the facts.
+  - Grounded and brief — a few sentences, not a paragraph of color.
+  - Only include narrative if it illustrates the facts. If the story doesn't add anything, keep it to the data.
 
-3. **Bottom line:** (should be bolded)
-  - A **short, final insight** into why this story matters. Must be 2 sentences.
-  - AVOID "We're" or "We are" in this section.
-  - Avoid overly-flowery language.
+3. **By the numbers:** (should be bolded)
+  - Key data points, stats, and scale. Bulleted.
+  - Use \`-\` for each bullet. 3-5 bullets max.
+  - **Bold** the numbers (MW, GWh, $/W, %, $, tonnes CO2).
+  - Maximum 1 link per bullet. Links must NOT be bold.
+  - Cite the source for each data point.
 
-### Tone and Voice
+4. **What remains:** (should be bolded)
+  - Be direct about challenges, limitations, or what comes next.
+  - 1-2 sentences. No fluff, no "the road ahead is long." State the specific obstacle or next step.
+  - This is what separates us from greenwashing — we tell the truth about what's not done yet.
 
-1. **Optimistic and Enthusiastic** — balanced, non-overbearing
-2. **Clear, Direct, and Data-Driven** — bullet points, bolded keywords
-3. **Conversational and Personable** — "we," "you"
-4. **Authoritative Without Being Overly Formal** — cite sources, link to relevant external sources
+### Writing Rules
 
-### Word Blacklist: Smarts, Game changing, Revolutionize, sophisticated
+- Place verbs directly after helping verbs like "makes," "allows," "enables"
+- Use clear subject-verb-object structure
+- Keep sentences concise and purposeful
+- Avoid technical jargon — write for non-technical readers
+- Cite sources for every claim. Link to the actual source, not a homepage.
+- Never use "could," "might," or "may" when describing something that has already happened
+- Never use "revolutionary," "game-changing," or similar hype words
+
+### Word Blacklist
+
+Smarts, Game changing, game-changing, Revolutionize, revolutionary, sophisticated, next-level, enhanced, greenwashing (unless calling it out), disrupt, disruptive, transformative, "the road ahead," "paving the way," "a beacon of hope"
 
 ### Formatting
 
-- Short paragraphs (1-2 sentences). Bullet points for features/stats.
-- **Bold** key data points. Use *italics* sparingly.
+- Short paragraphs (1-3 sentences). Bullet points for data.
+- **Bold** key data points and numbers. Use *italics* sparingly.
 - Format in markdown. Section heading should use \`#\` heading level.
 
 ### Link Requirements
@@ -108,13 +114,13 @@ ${externalSourceContent || "N/A"}
 
 Respond with valid JSON:
 {
-  "chainOfThought": "your reasoning...",
+  "chainOfThought": "your reasoning for how you applied BLUF style and editorial principles...",
   "newsletter_section_content": "the markdown content of this section"
 }`;
 
   const response = await chatWithClaude({
     system:
-      "You are an expert AI copywriter tasked with creating engaging newsletter segments that resonate with a tech-savvy audience. Always respond with valid JSON.",
+      "You are a newsletter writer for Solarpunk Currents, covering the clean energy transition through a solarpunk lens. You write BLUF-style: lead with what's actually happening, who's doing it, and real impact. You support with one concrete community story. You avoid aspirational fluff and are direct about remaining work. Story shows why it matters; facts show it's real. Always respond with valid JSON.",
     prompt,
     maxTokens: 8192,
   });

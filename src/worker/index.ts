@@ -25,16 +25,14 @@ export interface Env {
   INGEST_STATE: KVNamespace;
 
   // Secrets
-  FIRECRAWL_API_KEY: string;
+  PARALLEL_API_KEY?: string;
   ANTHROPIC_API_KEY: string;
   MISTRAL_API_KEY: string;
   MOONSHOT_API_KEY: string;
-  Exa?: string;
+  EXA_API_KEY?: string;
   TAVILY_API_KEY?: string;
-  REDDIT_CLIENT_ID?: string;
-  REDDIT_CLIENT_SECRET?: string;
-  GHOST_ADMIN_API_KEY: string;
-  GHOST_API_URL: string;
+  PEXELS_API_KEY?: string;
+  GITHUB_TOKEN: string;
 }
 
 export default {
@@ -50,6 +48,14 @@ export default {
     if (req.method === 'POST' && new URL(req.url).pathname === '/trigger') {
       ctx.waitUntil(handleScheduled(env));
       return new Response(JSON.stringify({ message: 'Ingestion triggered' }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Manual generate endpoint
+    if (req.method === 'POST' && new URL(req.url).pathname === '/generate') {
+      ctx.waitUntil(handleGenerateCron(env));
+      return new Response(JSON.stringify({ message: 'Newsletter generation triggered' }), {
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -71,19 +77,19 @@ export default {
   async queue(batch: MessageBatch<any>, env: Env): Promise<void> {
     // Route to appropriate handler based on queue name
     switch (batch.queue) {
-      case 'scrape-queue':
+      case 'sp-scrape-queue':
         await handleScrapeQueue(batch, env);
         break;
-      case 'evaluate-queue':
+      case 'sp-evaluate-queue':
         await handleEvaluateQueue(batch, env);
         break;
-      case 'upload-queue':
+      case 'sp-upload-queue':
         await handleUploadQueue(batch, env);
         break;
-      case 'generate-queue':
+      case 'sp-generate-queue':
         await handleGenerateQueue(batch, env);
         break;
-      case 'publish-queue':
+      case 'sp-publish-queue':
         await handlePublishQueue(batch, env);
         break;
       default:

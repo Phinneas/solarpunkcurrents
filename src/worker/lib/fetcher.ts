@@ -85,7 +85,7 @@ export class FeedFetcher {
     try {
       console.log(`    Fetching: ${feed.httpUrl || feed.feedUrl}`);
       const response = await fetch(feed.httpUrl || feed.feedUrl, {
-        headers: { 'User-Agent': 'AI-Newsletter-Bot/1.0' }
+        headers: { 'User-Agent': 'SolarpunkCurrents-Bot/1.0' }
       });
 
       if (!response.ok) {
@@ -164,7 +164,7 @@ export class FeedFetcher {
           log.info(`Fetching RSS: ${feed.name}`);
           const response = await fetch(feed.httpUrl || feed.feedUrl, {
             headers: {
-              'User-Agent': 'AI-Newsletter-Bot/1.0'
+              'User-Agent': 'SolarpunkCurrents-Bot/1.0'
             }
           });
 
@@ -328,9 +328,9 @@ export class FeedFetcher {
       
       const date = pubDate ? new Date(pubDate).toISOString().split('T')[0] : 'no-date';
       
-      return `${date}_${sourceName}_${slug || 'index'}`.substring(0, 200);
+      return `${date}/${slug || 'index'}.${sourceName}`.substring(0, 200);
     } catch {
-      return `${sourceName}_${Date.now()}`;
+      return `no-date/${sourceName}-${Date.now()}`;
     }
   }
 

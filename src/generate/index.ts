@@ -7,6 +7,8 @@ import { writeSection } from "./write-section.js";
 import { writeIntro } from "./write-intro.js";
 import { writeShortlist } from "./write-shortlist.js";
 import { assembleNewsletter } from "./assemble.js";
+import { searchHeroImage, type HeroImage } from "./hero-image.js";
+import { humanizeNewsletter } from "./humanize.js";
 
 interface ContentEntry {
   identifier: string;
@@ -63,10 +65,19 @@ async function loadContentFromR2(
   const entries: ContentEntry[] = [];
 
   for (const date of dates) {
-    const listed = await bucket.list({ prefix: `${date}/` });
-    const mdKeys = listed.objects
+    // Try directory prefix first (new format: 2026-08-21/slug.source.md)
+    let listed = await bucket.list({ prefix: `${date}/` });
+    let mdKeys = listed.objects
       .map((o: R2Object) => o.key)
       .filter((k: string) => k.endsWith(".md"));
+
+    // Fallback: flat format (legacy: 2026-08-21_source_slug.md)
+    if (mdKeys.length === 0) {
+      listed = await bucket.list({ prefix: `${date}_` });
+      mdKeys = listed.objects
+        .map((o: R2Object) => o.key)
+        .filter((k: string) => k.endsWith(".md"));
+    }
 
     log.info(`  ${date}: ${mdKeys.length} files`);
 
@@ -121,7 +132,7 @@ export async function generateNewsletter(
   dateOrDates: string | string[],
   bucketOrPrevious?: R2Bucket | string,
   previousNewsletterArg?: string
-): Promise<string> {
+): Promise<{ newsletter: string; heroImage: HeroImage | null }> {
   log.info("Starting Newsletter Generation");
   const totalTimer = log.timer("newsletter-generation");
 
@@ -163,6 +174,17 @@ export async function generateNewsletter(
   subjectTimer.end();
   log.info(`Subject: ${subjectResult.subjectLine}`);
   log.info(`Pre-header: ${subjectResult.preHeaderText}`);
+
+  // Step 3b: Search for hero image via Pexels
+  log.info("Searching for hero image...");
+  const heroTimer = log.timer("hero-image");
+  const heroImage = await searchHeroImage(subjectResult.subjectLine);
+  heroTimer.end();
+  if (heroImage) {
+    log.info(`Hero image: ${heroImage.url}`);
+  } else {
+    log.info("No hero image — newsletter will publish without one");
+  }
 
   // Step 4: Write each story section via Claude
   log.info("Writing story sections...");
@@ -237,7 +259,7 @@ export async function generateNewsletter(
 
   // Step 7: Assemble final newsletter
   log.info("Assembling newsletter...");
-  const newsletter = assembleNewsletter({
+  const rawNewsletter = assembleNewsletter({
     subjectLine: subjectResult.subjectLine,
     preHeaderText: subjectResult.preHeaderText,
     intro,
@@ -245,7 +267,10 @@ export async function generateNewsletter(
     shortlist,
   });
 
+  // Step 8: Humanize — remove AI writing patterns
+  const newsletter = await humanizeNewsletter(rawNewsletter);
+
   totalTimer.end();
   log.info("Newsletter Generation Complete");
-  return newsletter;
+  return { newsletter, heroImage };
 }

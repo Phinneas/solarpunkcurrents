@@ -45,7 +45,7 @@ export async function handleUploadQueue(batch: MessageBatch<UploadMessage>, env:
           scrapeResult.content,
           {
             httpMetadata: {
-              contentType: `application/vnd.aitools.${item.feedType}+md`,
+              contentType: `application/vnd.solarpunkcurrents.${item.feedType}+md`,
             },
             customMetadata: metadata,
           }
@@ -57,7 +57,7 @@ export async function handleUploadQueue(batch: MessageBatch<UploadMessage>, env:
           scrapeResult.rawHtml,
           {
             httpMetadata: {
-              contentType: `application/vnd.aitools.${item.feedType}.raw+html`,
+              contentType: `application/vnd.solarpunkcurrents.${item.feedType}.raw+html`,
             },
             customMetadata: metadata,
           }

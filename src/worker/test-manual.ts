@@ -70,13 +70,12 @@ const mockEnv: Env = {
     },
   } as any,
   
-  FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY || '',
+  PARALLEL_API_KEY: process.env.PARALLEL_API_KEY || '',
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
   MISTRAL_API_KEY: process.env.MISTRAL_API_KEY || '',
   MOONSHOT_API_KEY: process.env.MOONSHOT_API_KEY || '',
-  REDDIT_CLIENT_ID: process.env.REDDIT_CLIENT_ID,
-  REDDIT_CLIENT_SECRET: process.env.REDDIT_CLIENT_SECRET,
-};
+  GITHUB_TOKEN: process.env.GITHUB_TOKEN || '',
+} as unknown as Env; // GENERATE_QUEUE/PUBLISH_QUEUE mocks not wired up in this manual script
 
 async function main() {
   console.log('🧪 Testing Worker pipeline locally...\n');

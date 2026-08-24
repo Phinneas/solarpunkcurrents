@@ -1,5 +1,5 @@
 /**
- * Stage 2: Scrape URLs via Firecrawl
+ * Stage 2: Scrape URLs via Jina Reader → Parallel Extract → native fetch
  * Consumes messages from scrape-queue, enqueues to evaluate-queue
  */
 
@@ -35,7 +35,7 @@ export async function handleScrapeQueue(batch: MessageBatch<ScrapeMessage>, env:
         }
         
         // Pass API key from env to scrape function
-        const result = await scrapeUrl(itemData.url, env.FIRECRAWL_API_KEY);
+        const result = await scrapeUrl(itemData.url, env.PARALLEL_API_KEY);
         
         if (!result || !result.content) {
           console.warn(`[Stage 2] Failed to scrape: ${itemData.title}`);
@@ -64,15 +64,19 @@ export async function handleScrapeQueue(batch: MessageBatch<ScrapeMessage>, env:
       
       // Only enqueue if we have successfully scraped items
       if (scrapedItems.length > 0) {
-        const evaluateMessage: EvaluateMessage = {
-          type: 'batch',
-          items: scrapedItems,
-          batchId: message.batchId,
-          timestamp: Date.now(),
-        };
-        
-        await env.EVALUATE_QUEUE.send(evaluateMessage);
-        console.log(`[Stage 2] Enqueued ${scrapedItems.length} items for evaluation`);
+        // Send items individually to stay under Cloudflare Queue's 128KB
+        // message limit — full scrapeResult (content + rawHtml) for 5 items
+        // can easily exceed it.
+        for (const scrapedItem of scrapedItems) {
+          const evaluateMessage: EvaluateMessage = {
+            type: 'batch',
+            items: [scrapedItem],
+            batchId: message.batchId,
+            timestamp: Date.now(),
+          };
+          await env.EVALUATE_QUEUE.send(evaluateMessage);
+        }
+        console.log(`[Stage 2] Enqueued ${scrapedItems.length} items for evaluation (individual messages)`);
       }
       
     } catch (error) {

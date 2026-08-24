@@ -18,11 +18,14 @@ export const config = {
     endpoint: isWorker ? '' : (process.env.S3_ENDPOINT || ''),
     accessKeyId: isWorker ? '' : (process.env.S3_ACCESS_KEY_ID || ''),
     secretAccessKey: isWorker ? '' : (process.env.S3_SECRET_ACCESS_KEY || ''),
-    bucket: isWorker ? '' : (process.env.S3_BUCKET || 'data-ingestion'),
+    bucket: isWorker ? '' : (process.env.S3_BUCKET || 'solarpunkcurrents'),
     region: isWorker ? '' : (process.env.S3_REGION || 'auto'),
   },
   firecrawl: {
-    apiKey: isWorker ? '' : (process.env.FIRECRAWL_API_KEY || ''),
+    apiKey: '',
+  },
+  parallel: {
+    apiKey: isWorker ? '' : (process.env.PARALLEL_API_KEY || ''),
   },
   anthropic: {
     apiKey: isWorker ? '' : (process.env.ANTHROPIC_API_KEY || ''),
@@ -34,8 +37,8 @@ export const config = {
     apiKey: isWorker ? '' : (process.env.MOONSHOT_API_KEY || ''),
   },
   reddit: {
-    clientId: isWorker ? '' : (process.env.REDDIT_CLIENT_ID || ''),
-    clientSecret: isWorker ? '' : (process.env.REDDIT_CLIENT_SECRET || ''),
+    clientId: '',
+    clientSecret: '',
   },
   exa: {
     apiKey: isWorker ? '' : (process.env.EXA_API_KEY || ''),

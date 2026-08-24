@@ -3,6 +3,10 @@ import type { LLMClient } from "./types.js";
 
 const BASE_URL = "https://api.moonshot.cn/v1";
 
+function getApiKey(): string {
+  return config.moonshot.apiKey || process.env?.MOONSHOT_API_KEY || "";
+}
+
 export const kimiClient: LLMClient = {
   async chat({ system, prompt, maxTokens = 8192 }) {
     const messages: Array<{ role: string; content: string }> = [];
@@ -16,7 +20,7 @@ export const kimiClient: LLMClient = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${config.moonshot.apiKey}`,
+        Authorization: `Bearer ${getApiKey()}`,
       },
       body: JSON.stringify({
         model: "kimi-k2",

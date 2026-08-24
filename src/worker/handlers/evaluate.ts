@@ -11,6 +11,11 @@ import type { EvaluateMessage, UploadMessage } from '../types.js';
 export async function handleEvaluateQueue(batch: MessageBatch<EvaluateMessage>, env: Env): Promise<void> {
   console.log(`[Stage 3] Processing evaluation batch with ${batch.messages.length} messages`);
   
+  // Inject env secrets into process.env so LLM clients can read them
+  process.env.MISTRAL_API_KEY = env.MISTRAL_API_KEY;
+  if (env.EXA_API_KEY) process.env.EXA_API_KEY = env.EXA_API_KEY;
+  if (env.TAVILY_API_KEY) process.env.TAVILY_API_KEY = env.TAVILY_API_KEY;
+  
   for (const msg of batch.messages) {
     const message = msg.body;
     

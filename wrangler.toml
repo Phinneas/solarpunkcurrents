@@ -1,5 +1,8 @@
-# Cloudflare Workers Configuration for AI Newsletter Ingest
-name = "ainewsletter-ingest"
+# Cloudflare Workers Configuration for Solarpunk Currents Ingest
+# Single environment — `wrangler deploy` targets this directly.
+# (Removed inherited [env.production] / [env.dev] blocks to avoid
+#  "Multiple environments are defined" warnings and accidental misdeploys.)
+name = "solarpunkcurrents-ingest"
 main = "src/worker/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
@@ -7,77 +10,79 @@ compatibility_flags = ["nodejs_compat"]
 # Scheduled triggers (runs on Cloudflare, no computer needed)
 [triggers]
 crons = [
-  "0 7 * * *",   # Ingest every morning at 7am UTC
-  "0 19 * * *",  # Ingest every evening at 7pm UTC
+  "0 7 * * *",   # Ingest once daily at 7am UTC
   "0 8 * * 3",   # Generate newsletter Wednesday 8am UTC
   "0 8 * * 6",   # Generate newsletter Saturday 8am UTC
 ]
 
 # Queue bindings - producers to SEND messages
 [[queues.producers]]
-queue = "scrape-queue"
+queue = "sp-scrape-queue"
 binding = "SCRAPE_QUEUE"
 
 [[queues.producers]]
-queue = "evaluate-queue"
+queue = "sp-evaluate-queue"
 binding = "EVALUATE_QUEUE"
 
 [[queues.producers]]
-queue = "upload-queue"
+queue = "sp-upload-queue"
 binding = "UPLOAD_QUEUE"
 
 [[queues.producers]]
-queue = "generate-queue"
+queue = "sp-generate-queue"
 binding = "GENERATE_QUEUE"
 
 [[queues.producers]]
-queue = "publish-queue"
+queue = "sp-publish-queue"
 binding = "PUBLISH_QUEUE"
 
 # Queue bindings - consumers to PROCESS messages
 [[queues.consumers]]
-queue = "scrape-queue"
+queue = "sp-scrape-queue"
 max_batch_size = 10
 max_batch_timeout = 30
 
 [[queues.consumers]]
-queue = "evaluate-queue"
+queue = "sp-evaluate-queue"
 max_batch_size = 20
 max_batch_timeout = 30
 
 [[queues.consumers]]
-queue = "upload-queue"
+queue = "sp-upload-queue"
 max_batch_size = 30
 max_batch_timeout = 30
 
 [[queues.consumers]]
-queue = "generate-queue"
+queue = "sp-generate-queue"
 max_batch_size = 1
 max_batch_timeout = 60
 
 [[queues.consumers]]
-queue = "publish-queue"
+queue = "sp-publish-queue"
 max_batch_size = 1
 max_batch_timeout = 30
 
-# R2 bucket for content storage (matches your current setup)
+# R2 bucket for content storage (dedicated — not shared with ainewsletter)
 [[r2_buckets]]
 binding = "CONTENT_BUCKET"
-bucket_name = "ainewsletter"
+bucket_name = "solarpunkcurrents"
 
-# KV namespace for tracking state and deduplication
+# KV namespace for tracking state and deduplication (dedicated)
 [[kv_namespaces]]
 binding = "INGEST_STATE"
-id = "d858fcdf0fc84221908e17c523f05aa6"
+id = "001945d020b346869102022f6b10ada9"
 
 # Secrets (set via wrangler secret put)
-# - FIRECRAWL_API_KEY
-# - ANTHROPIC_API_KEY
-# - MISTRAL_API_KEY
-# - MOONSHOT_API_KEY
-# - EXA_API_KEY
-# - GHOST_ADMIN_API_KEY
-# - GHOST_API_URL
+# Required:
+#   wrangler secret put MISTRAL_API_KEY
+#   wrangler secret put MOONSHOT_API_KEY
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put GITHUB_TOKEN
+# Optional (scraping + discovery search, degrades gracefully if omitted):
+#   wrangler secret put PARALLEL_API_KEY   (Parallel Extract, $1/1000 URLs, https://parallel.ai)
+#   wrangler secret put EXA_API_KEY        (Exa discovery search, https://exa.ai)
+#   wrangler secret put TAVILY_API_KEY     (Tavily discovery search, https://tavily.com)
+#   wrangler secret put PEXELS_API_KEY     (Pexels hero images, free at https://www.pexels.com/api)
 
 # Enable observability (logs)
 [observability]
@@ -85,93 +90,5 @@ enabled = true
 head_sampling_rate = 1
 
 [observability.logs]
-enabled = true
-head_sampling_rate = 1
-
-# Production environment
-[env.production]
-name = "ainewsletter-ingest-prod"
-
-# Production: Scheduled triggers
-crons = [
-  "0 7 * * *",   # Ingest every morning at 7am UTC
-  "0 19 * * *",  # Ingest every evening at 7pm UTC
-  "0 8 * * 3",   # Generate Wednesday 8am UTC
-  "0 8 * * 6",   # Generate Saturday 8am UTC
-]
-
-# Production: Enable observability
-[env.production.observability]
-enabled = true
-head_sampling_rate = 1
-
-[env.production.observability.logs]
-enabled = true
-head_sampling_rate = 1
-
-[[env.production.queues.producers]]
-queue = "scrape-queue"
-binding = "SCRAPE_QUEUE"
-
-[[env.production.queues.producers]]
-queue = "evaluate-queue"
-binding = "EVALUATE_QUEUE"
-
-[[env.production.queues.producers]]
-queue = "upload-queue"
-binding = "UPLOAD_QUEUE"
-
-[[env.production.queues.producers]]
-queue = "generate-queue"
-binding = "GENERATE_QUEUE"
-
-[[env.production.queues.producers]]
-queue = "publish-queue"
-binding = "PUBLISH_QUEUE"
-
-[[env.production.queues.consumers]]
-queue = "scrape-queue"
-max_batch_size = 10
-max_batch_timeout = 30
-
-[[env.production.queues.consumers]]
-queue = "evaluate-queue"
-max_batch_size = 20
-max_batch_timeout = 30
-
-[[env.production.queues.consumers]]
-queue = "upload-queue"
-max_batch_size = 30
-max_batch_timeout = 30
-
-[[env.production.queues.consumers]]
-queue = "generate-queue"
-max_batch_size = 1
-max_batch_timeout = 60
-
-[[env.production.queues.consumers]]
-queue = "publish-queue"
-max_batch_size = 1
-max_batch_timeout = 30
-
-[[env.production.r2_buckets]]
-binding = "CONTENT_BUCKET"
-bucket_name = "ainewsletter"
-
-[[env.production.kv_namespaces]]
-binding = "INGEST_STATE"
-id = "d858fcdf0fc84221908e17c523f05aa6"
-
-# Development environment
-[env.dev]
-name = "ainewsletter-ingest-dev"
-crons = []  # Disable scheduled runs in dev
-
-# Dev: Enable observability
-[env.dev.observability]
-enabled = true
-head_sampling_rate = 1
-
-[env.dev.observability.logs]
 enabled = true
 head_sampling_rate = 1
