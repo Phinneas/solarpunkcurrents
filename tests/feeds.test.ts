@@ -17,43 +17,52 @@ describe("feed definitions (loaded from feeds.json)", () => {
     expect(NEWSLETTER_FEEDS).toHaveLength(0);
   });
 
-  it("has 2 JSON feeds (Google News, Hacker News)", () => {
-    expect(JSON_FEEDS).toHaveLength(2);
-    expect(JSON_FEEDS.map((f) => f.name)).toContain("google_news");
-    expect(JSON_FEEDS.map((f) => f.name)).toContain("hacker_news");
+  it("has 0 JSON feeds", () => {
+    expect(JSON_FEEDS).toHaveLength(0);
   });
 
-  it("has 6 Reddit feeds", () => {
-    expect(REDDIT_FEEDS).toHaveLength(6);
+  it("has 0 Reddit feeds", () => {
+    expect(REDDIT_FEEDS).toHaveLength(0);
   });
 
-  it("has 6 blog feeds", () => {
-    expect(BLOG_FEEDS).toHaveLength(6);
+  it("has 1 blog feed", () => {
+    expect(BLOG_FEEDS).toHaveLength(1);
   });
 
-  it("has 8 news feeds (nyt, wsj disabled; forbes removed)", () => {
-    expect(NEWS_FEEDS).toHaveLength(8);
+  it("has 36 news feeds (energy trade press + solarpunk culture/living)", () => {
+    expect(NEWS_FEEDS).toHaveLength(36);
   });
 
-  it("has 7 substack feeds", () => {
-    expect(SUBSTACK_FEEDS).toHaveLength(7);
+  it("includes cultural, living, and good-news feeds alongside energy news", () => {
+    const newsNames = NEWS_FEEDS.map((f) => f.name);
+    for (const name of [
+      "reactor",
+      "orion",
+      "emergence",
+      "permaculture_magazine",
+      "low_tech_magazine",
+      "waging_nonviolence",
+      "positive_news",
+      "reasons_to_be_cheerful",
+      "fix_the_news",
+    ]) {
+      expect(newsNames).toContain(name);
+    }
+  });
+
+  it("has 1 substack feed", () => {
+    expect(SUBSTACK_FEEDS).toHaveLength(1);
     for (const feed of SUBSTACK_FEEDS) {
       expect(feed.feedType).toBe("newsletter");
     }
   });
 
-  it("has 6 tutorial feeds", () => {
-    expect(TUTORIAL_FEEDS).toHaveLength(6);
-    for (const feed of TUTORIAL_FEEDS) {
-      expect(feed.feedType).toBe("tutorial");
-    }
+  it("has 0 tutorial feeds", () => {
+    expect(TUTORIAL_FEEDS).toHaveLength(0);
   });
 
-  it("has 1 research feed (arxiv disabled due to volume)", () => {
-    expect(RESEARCH_FEEDS).toHaveLength(1);
-    for (const feed of RESEARCH_FEEDS) {
-      expect(feed.feedType).toBe("research");
-    }
+  it("has 0 research feeds", () => {
+    expect(RESEARCH_FEEDS).toHaveLength(0);
   });
 
   it("ALL_FEEDS contains all feeds combined", () => {
@@ -75,19 +84,6 @@ describe("feed definitions (loaded from feeds.json)", () => {
     }
   });
 
-  it("all reddit feeds have feedType 'subreddit'", () => {
-    for (const feed of REDDIT_FEEDS) {
-      expect(feed.feedType).toBe("subreddit");
-    }
-  });
-
-  it("all reddit feeds have a subreddit name", () => {
-    for (const feed of REDDIT_FEEDS) {
-      expect(feed.subreddit).toBeDefined();
-      expect(feed.subreddit!.length).toBeGreaterThan(0);
-    }
-  });
-
   it("all feeds have unique names", () => {
     const names = ALL_FEEDS.map((f) => f.name);
     expect(new Set(names).size).toBe(names.length);
@@ -100,7 +96,7 @@ describe("feed definitions (loaded from feeds.json)", () => {
 
   it("all feeds have a valid format", () => {
     for (const feed of ALL_FEEDS) {
-      expect(["rss", "json"]).toContain(feed.format);
+      expect(["rss", "json", "scraped_page"]).toContain(feed.format);
     }
   });
 
@@ -122,8 +118,6 @@ describe("feed definitions (loaded from feeds.json)", () => {
   });
 
   it("ALL_FEEDS only contains enabled feeds (disabled feeds filtered out)", () => {
-    // ALL_FEEDS is filtered to only enabled feeds
-    // Check that all feeds in ALL_FEEDS are enabled
     for (const feed of ALL_FEEDS) {
       expect(feed.enabled).toBe(true);
     }

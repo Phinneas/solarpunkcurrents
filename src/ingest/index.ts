@@ -23,7 +23,7 @@ import {
 } from "./normalize.js";
 import { processRedditFeedItems } from "./reddit.js";
 import { scrapeUrl } from "./scrape.js";
-import { evaluateContentRelevance } from "./evaluate.js";
+import { evaluateContentRelevance, type ContentTheme } from "./evaluate.js";
 import { extractExternalSources } from "./extract-sources.js";
 import { runDiscovery } from "./discover.js";
 import * as s3 from "../storage/s3.js";
@@ -223,6 +223,7 @@ async function stageScrape(
 
 interface EvaluatedItem extends ScrapedItem {
   externalSources: string;
+  theme: ContentTheme;
 }
 
 /** Stage 3: Evaluate — relevance check + external source extraction, concurrency limited. */
@@ -245,7 +246,7 @@ async function stageEvaluate(
     }
 
     const externalSources = await extractExternalSources(scrapeResult);
-    return { item, scrapeResult, externalSources };
+    return { item, scrapeResult, externalSources, theme: evaluation.theme };
   });
 
   const evaluated: EvaluatedItem[] = [];
@@ -271,7 +272,7 @@ async function stageUpload(items: EvaluatedItem[]): Promise<number> {
   log.info(`Stage 4: Uploading ${items.length} items (concurrency: ${concurrency})...`);
   const uploadTimer = log.timer("stage-upload");
 
-  const results = await mapConcurrent(items, concurrency, async ({ item, scrapeResult, externalSources }, index) => {
+  const results = await mapConcurrent(items, concurrency, async ({ item, scrapeResult, externalSources, theme }, index) => {
     const label = `[${item.sourceName}] ${item.title}`;
     const progress = `[${index + 1}/${items.length}]`;
 
@@ -288,6 +289,7 @@ async function stageUpload(items: EvaluatedItem[]): Promise<number> {
       url: item.url,
       timestamp: item.publishedTimestamp,
       "feed-url": item.feedUrl,
+      theme,
     };
 
     await s3.uploadWithMetadata(

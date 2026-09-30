@@ -82,7 +82,7 @@ export async function uploadWithMetadata(uploadFileName, markdownContent, htmlCo
             metaRecord[k] = String(v);
     }
     // Upload markdown directly with metadata
-    await upload(`${uploadFileName}.md`, markdownContent, `application/vnd.aitools.${metadata.type}+md`, metaRecord);
+    await upload(`${uploadFileName}.md`, markdownContent, `application/vnd.solarpunkcurrents.${metadata.type}+md`, metaRecord);
     // Upload HTML directly with metadata
-    await upload(`${uploadFileName}.html`, htmlContent, `application/vnd.aitools.${metadata.type}.raw+html`, metaRecord);
+    await upload(`${uploadFileName}.html`, htmlContent, `application/vnd.solarpunkcurrents.${metadata.type}.raw+html`, metaRecord);
 }

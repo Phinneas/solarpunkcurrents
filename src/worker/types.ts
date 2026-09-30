@@ -54,6 +54,7 @@ export interface UploadMessage {
     externalSources: string;
     isRelevant: boolean;
     relevanceReason: string;
+    theme: string;
   }>;
   batchId: string;
   timestamp: number;

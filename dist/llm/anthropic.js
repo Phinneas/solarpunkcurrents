@@ -1,9 +1,18 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { config } from "../config.js";
-const client = new Anthropic({ apiKey: config.anthropic.apiKey });
+let client = null;
+let lastApiKey = "";
+function getClient() {
+    const apiKey = config.anthropic.apiKey || process.env?.ANTHROPIC_API_KEY || "";
+    if (!client || apiKey !== lastApiKey) {
+        client = new Anthropic({ apiKey });
+        lastApiKey = apiKey;
+    }
+    return client;
+}
 export const anthropicClient = {
     async chat({ system, prompt, maxTokens = 8192 }) {
-        const response = await client.messages.create({
+        const response = await getClient().messages.create({
             model: "claude-sonnet-4-5-20250929",
             max_tokens: maxTokens,
             system: system ?? "",

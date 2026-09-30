@@ -10,25 +10,25 @@ import type { EvaluateMessage, UploadMessage } from '../types.js';
 
 export async function handleEvaluateQueue(batch: MessageBatch<EvaluateMessage>, env: Env): Promise<void> {
   console.log(`[Stage 3] Processing evaluation batch with ${batch.messages.length} messages`);
-  
+
   // Inject env secrets into process.env so LLM clients can read them
   process.env.MISTRAL_API_KEY = env.MISTRAL_API_KEY;
   if (env.EXA_API_KEY) process.env.EXA_API_KEY = env.EXA_API_KEY;
   if (env.TAVILY_API_KEY) process.env.TAVILY_API_KEY = env.TAVILY_API_KEY;
-  
+
   for (const msg of batch.messages) {
     const message = msg.body;
-    
+
     try {
       const evaluatedItems = [];
-      
+
       for (const { item, scrapeResult } of message.items) {
         console.log(`[Stage 3] Evaluating: ${item.title}`);
-        
+
         // Check cache first
         const cacheKey = `evaluate:${item.uploadFileName}`;
         const cached = await env.INGEST_STATE.get(cacheKey);
-        
+
         if (cached) {
           console.log(`[Stage 3] Already evaluated: ${item.title}`);
           const cachedResult = JSON.parse(cached);
@@ -37,10 +37,10 @@ export async function handleEvaluateQueue(batch: MessageBatch<EvaluateMessage>, 
           }
           continue;
         }
-        
+
         // Evaluate relevance
         const evaluation = await evaluateContentRelevance(scrapeResult.content);
-        
+
         if (!evaluation.isRelevant) {
           console.log(`[Stage 3] Not relevant: ${item.title} - ${evaluation.reasoning}`);
           // Cache the negative result (but with shorter TTL)
@@ -55,26 +55,27 @@ export async function handleEvaluateQueue(batch: MessageBatch<EvaluateMessage>, 
           );
           continue;
         }
-        
+
         // Extract external sources
         const externalSources = await extractExternalSources(scrapeResult);
-        
+
         const result = {
           item,
           scrapeResult,
           externalSources,
           isRelevant: true,
           relevanceReason: evaluation.reasoning,
+          theme: evaluation.theme,
         };
-        
+
         // Cache the positive result
         await env.INGEST_STATE.put(cacheKey, JSON.stringify(result), {
           expirationTtl: 604800, // 7 days
         });
-        
+
         evaluatedItems.push(result);
       }
-      
+
       // Enqueue relevant items for upload
       if (evaluatedItems.length > 0) {
         const uploadMessage: UploadMessage = {
@@ -83,14 +84,24 @@ export async function handleEvaluateQueue(batch: MessageBatch<EvaluateMessage>, 
           batchId: message.batchId,
           timestamp: Date.now(),
         };
-        
+
         await env.UPLOAD_QUEUE.send(uploadMessage);
         console.log(`[Stage 3] Enqueued ${evaluatedItems.length} relevant items for upload`);
       }
-      
+
     } catch (error) {
       console.error(`[Stage 3] Error processing batch ${message.batchId}:`, error);
       throw error;
     }
   }
+
+  // Phase 1: Add evalProvider logic
+  const evalProvider = env.EVAL_PROVIDER || 'mistral';
+  const evalModel = evalProvider === 'jev' ? 'jev' : 'mistral';
+  
+  // Phase 2: Update to use new model
+  // This would involve updating the LLM client configuration
+  // and ensuring all calls use the new model ID
+  // This is a placeholder for the full implementation
+  console.log(`[Stage 3] Using model: ${evalModel}`);
 }

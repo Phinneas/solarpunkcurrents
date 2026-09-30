@@ -9,6 +9,7 @@ export interface ContentMetadata {
   url: string;
   timestamp: string;
   "feed-url": string;
+  theme: string;
 }
 
 export interface ContentItem {

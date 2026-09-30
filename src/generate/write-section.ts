@@ -39,6 +39,8 @@ Today's date for the newsletter is *${date}*.
 
 **Story shows why it matters; facts show it's real.**
 
+**For culture, living, and good-news stories (theme: culture / living / good-news / activism / community):** adapt BLUF instead of forcing a deployment template. Lead with the human win, the creative work, or the planet win. Let "The Story" carry the piece (the person, the project, the moment). Use "By the numbers" only when real numbers exist; otherwise replace it with a short "Why it matters" line. Keep "What remains" honest but brief.
+
 ### Section Structure
 
 Follow this structure when writing your newsletter segment:

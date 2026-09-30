@@ -7,6 +7,11 @@ import { writeSection } from "./write-section.js";
 import { writeIntro } from "./write-intro.js";
 import { writeShortlist } from "./write-shortlist.js";
 import { assembleNewsletter } from "./assemble.js";
+import { searchHeroImage } from "./hero-image.js";
+import { humanizeNewsletter } from "./humanize.js";
+/**
+ * Load content from S3 for a single date prefix (CLI usage).
+ */
 async function loadContentForDate(date) {
     log.info(`Loading content for date: ${date}`);
     const keys = await s3.list(`${date}/`);
@@ -19,9 +24,6 @@ async function loadContentForDate(date) {
                 s3.download(key),
                 s3.getMetadata(key),
             ]);
-            // Skip newsletters — we only want articles and subreddit posts
-            if (metadata.type === "newsletter")
-                continue;
             entries.push({
                 identifier: key,
                 content,
@@ -30,13 +32,60 @@ async function loadContentForDate(date) {
                 sourceName: metadata["source-name"] ?? "",
                 type: metadata.type ?? "article",
                 externalSourceUrls: metadata["external-source-urls"] ?? "",
+                theme: metadata["theme"] ?? "other",
             });
         }
         catch (err) {
             log.warn(`Failed to load ${key}`, { error: err instanceof Error ? err.message : String(err) });
         }
     }
-    log.info(`Loaded ${entries.length} content entries (excluding newsletters)`);
+    log.info(`Loaded ${entries.length} content entries`);
+    return entries;
+}
+/**
+ * Load content from an R2 bucket across multiple date prefixes (Worker usage).
+ */
+async function loadContentFromR2(dates, bucket) {
+    log.info(`Loading content from R2 for ${dates.length} date(s)`);
+    const entries = [];
+    for (const date of dates) {
+        // Try directory prefix first (new format: 2026-08-21/slug.source.md)
+        let listed = await bucket.list({ prefix: `${date}/` });
+        let mdKeys = listed.objects
+            .map((o) => o.key)
+            .filter((k) => k.endsWith(".md"));
+        // Fallback: flat format (legacy: 2026-08-21_source_slug.md)
+        if (mdKeys.length === 0) {
+            listed = await bucket.list({ prefix: `${date}_` });
+            mdKeys = listed.objects
+                .map((o) => o.key)
+                .filter((k) => k.endsWith(".md"));
+        }
+        log.info(`  ${date}: ${mdKeys.length} files`);
+        for (const key of mdKeys) {
+            try {
+                const obj = await bucket.get(key);
+                if (!obj)
+                    continue;
+                const content = await obj.text();
+                const metadata = (obj.customMetadata ?? {});
+                entries.push({
+                    identifier: key,
+                    content,
+                    metadata,
+                    title: metadata.title ?? key,
+                    sourceName: metadata["source-name"] ?? "",
+                    type: metadata.type ?? "article",
+                    externalSourceUrls: metadata["external-source-urls"] ?? "",
+                    theme: metadata["theme"] ?? "other",
+                });
+            }
+            catch (err) {
+                log.warn(`Failed to load ${key} from R2`, { error: err instanceof Error ? err.message : String(err) });
+            }
+        }
+    }
+    log.info(`Loaded ${entries.length} total content entries from R2`);
     return entries;
 }
 async function scrapeExternalSources(urls) {
@@ -56,15 +105,27 @@ async function scrapeExternalSources(urls) {
     }
     return results.length > 0 ? results.join("\n\n") : "N/A";
 }
-export async function generateNewsletter(date, previousNewsletter) {
+export async function generateNewsletter(dateOrDates, bucketOrPrevious, previousNewsletterArg) {
     log.info("Starting Newsletter Generation");
     const totalTimer = log.timer("newsletter-generation");
-    // Step 1: Load all content for the date
+    // Resolve overloaded arguments:
+    // CLI:    generateNewsletter("2026-02-21", previousNewsletter?)
+    // Worker: generateNewsletter(["2026-02-21", ...], bucket, previousNewsletter?)
+    const isWorker = Array.isArray(dateOrDates);
+    const dates = isWorker ? dateOrDates : [dateOrDates];
+    const displayDate = dates[0];
+    const bucket = isWorker ? bucketOrPrevious : undefined;
+    const previousNewsletter = isWorker
+        ? previousNewsletterArg
+        : bucketOrPrevious;
+    // Step 1: Load all content
     const loadTimer = log.timer("load-content");
-    const entries = await loadContentForDate(date);
+    const entries = isWorker
+        ? await loadContentFromR2(dates, bucket)
+        : await loadContentForDate(dates[0]);
     loadTimer.end();
     if (entries.length === 0) {
-        throw new Error(`No content found for date: ${date}`);
+        throw new Error(`No content found for date range: ${dates.join(", ")}`);
     }
     // Step 2: Select top stories via Kimi K2
     log.info("Selecting top stories...");
@@ -78,10 +139,21 @@ export async function generateNewsletter(date, previousNewsletter) {
     // Step 3: Generate subject line via Kimi K2
     log.info("Generating subject line...");
     const subjectTimer = log.timer("subject-line");
-    const subjectResult = await generateSubjectLine(selection.stories, entries, date);
+    const subjectResult = await generateSubjectLine(selection.stories, entries, displayDate);
     subjectTimer.end();
     log.info(`Subject: ${subjectResult.subjectLine}`);
     log.info(`Pre-header: ${subjectResult.preHeaderText}`);
+    // Step 3b: Search for hero image via Pexels
+    log.info("Searching for hero image...");
+    const heroTimer = log.timer("hero-image");
+    const heroImage = await searchHeroImage(subjectResult.subjectLine);
+    heroTimer.end();
+    if (heroImage) {
+        log.info(`Hero image: ${heroImage.url}`);
+    }
+    else {
+        log.info("No hero image — newsletter will publish without one");
+    }
     // Step 4: Write each story section via Claude
     log.info("Writing story sections...");
     const sectionsTimer = log.timer("write-sections");
@@ -107,7 +179,7 @@ export async function generateNewsletter(date, previousNewsletter) {
             externalSourceContent: externalContent,
             subjectLine: subjectResult.subjectLine,
             preHeaderText: subjectResult.preHeaderText,
-            date,
+            date: displayDate,
         });
         storySections.push(section.content);
     }
@@ -120,33 +192,35 @@ export async function generateNewsletter(date, previousNewsletter) {
         subjectLine: subjectResult.subjectLine,
         preHeaderText: subjectResult.preHeaderText,
         storySections: combinedSections,
-        date,
+        date: displayDate,
     });
     introTimer.end();
     // Step 6: Write "The Quick Scribbles" via Claude
     log.info("Writing shortlist...");
     const shortlistTimer = log.timer("write-shortlist");
     const allContentText = entries
-        .map((e) => `<${e.identifier}>\n---\nidentifier: ${e.identifier}\nsourceName: ${e.sourceName}\nurl: ${e.metadata.url ?? ""}\n---\n\nTitle: ${e.title}\n\n${e.content.substring(0, 500)}...\n</${e.identifier}>`)
+        .map((e) => `<${e.identifier}>\n---\nidentifier: ${e.identifier}\nsourceName: ${e.sourceName}\nfeedType: ${e.type}\nurl: ${e.metadata.url ?? ""}\n---\n\nTitle: ${e.title}\n\n${e.content.substring(0, 500)}...\n</${e.identifier}>`)
         .join("\n\n");
     const shortlist = await writeShortlist({
         subjectLine: subjectResult.subjectLine,
         storySections: combinedSections,
         allContent: allContentText,
         previousNewsletter,
-        date,
+        date: displayDate,
     });
     shortlistTimer.end();
     // Step 7: Assemble final newsletter
     log.info("Assembling newsletter...");
-    const newsletter = assembleNewsletter({
+    const rawNewsletter = assembleNewsletter({
         subjectLine: subjectResult.subjectLine,
         preHeaderText: subjectResult.preHeaderText,
         intro,
         storySections,
         shortlist,
     });
+    // Step 8: Humanize — remove AI writing patterns
+    const newsletter = await humanizeNewsletter(rawNewsletter);
     totalTimer.end();
     log.info("Newsletter Generation Complete");
-    return newsletter;
+    return { newsletter, heroImage };
 }

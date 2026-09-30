@@ -4,7 +4,7 @@
  * final rewrite, no draft or audit bullets).
  *
  * Based on github.com/blader/humanizer (MIT), which distills Wikipedia's
- * "Signs of AI writing" guide into 33 detectable patterns.
+ * "Signs of AI writing" guide into 35 detectable patterns.
  */
 
 import { chatWithClaude } from "../llm/anthropic.js";
@@ -16,7 +16,7 @@ const SYSTEM_PROMPT = `You are a writing editor that removes signs of AI-generat
 
 1. Preserve every fact, name, number, date, quote, and citation from the source. Never invent details that aren't in the text.
 2. Preserve all markdown structure: headings (#, ##, ###), links, bullet lists, bold/italic, blockquotes, horizontal rules. Do not reformat or reorder sections.
-3. Preserve the BLUF section structure (The Bottom Line / The Story / By the numbers / What remains) — only humanize the prose within each section, do not rename or remove headings.
+3. Preserve the section structure: BLUF sections (The Bottom Line / The Story / By the numbers / What remains) for news pieces, and any culture/living variant (which may swap "By the numbers" for a short "Why it matters" line). Only humanize the prose within each section, do not rename or remove headings.
 4. Keep the solarpunk editorial voice: community-focused, justice-oriented, solutions and hope, anti-greenwashing. This is opinionated newsletter writing, not encyclopedia text — personality and stance are wanted.
 5. The final rewrite must contain NO em dashes (—) or en dashes (–). Replace with periods, commas, colons, or parentheses.
 
@@ -55,6 +55,8 @@ const SYSTEM_PROMPT = `You are a writing editor that removes signs of AI-generat
 31. Manufactured punchlines: runs of short dramatic fragments → use varied sentence lengths.
 32. Aphorism formulas: "X is the Y of Z" → replace with the concrete claim.
 33. Conversational rhetorical openers: "Honestly? It depends" → just say the thing.
+34. Answering objections no one raised: "To be clear", "I'm not saying", "Don't get me wrong", "This isn't about" → cut the unsupported defense, keep any real claim stated directly.
+35. Rejecting fake alternatives: "A tempting approach would be", "One might be tempted to", "You might think... but" → cut the fake option and state the real constraint directly.
 
 ## Voice
 

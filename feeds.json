@@ -209,6 +209,176 @@
       "httpUrl": "https://www.theclimatebrink.com/feed",
       "category": "substack",
       "enabled": true
+    },
+    {
+      "name": "reactor",
+      "sourceName": "reactor",
+      "feedType": "article",
+      "feedUrl": "https://reactormag.com/feed/",
+      "format": "rss",
+      "httpUrl": "https://reactormag.com/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "locus",
+      "sourceName": "locus",
+      "feedType": "article",
+      "feedUrl": "https://locusmag.com/feed/",
+      "format": "rss",
+      "httpUrl": "https://locusmag.com/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "atmos",
+      "sourceName": "atmos",
+      "feedType": "article",
+      "feedUrl": "https://atmos.earth/feed/",
+      "format": "rss",
+      "httpUrl": "https://atmos.earth/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "orion",
+      "sourceName": "orion",
+      "feedType": "article",
+      "feedUrl": "https://orionmagazine.org/feed/",
+      "format": "rss",
+      "httpUrl": "https://orionmagazine.org/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "emergence",
+      "sourceName": "emergence",
+      "feedType": "article",
+      "feedUrl": "https://emergencemagazine.org/feed/",
+      "format": "rss",
+      "httpUrl": "https://emergencemagazine.org/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "waging_nonviolence",
+      "sourceName": "waging-nonviolence",
+      "feedType": "article",
+      "feedUrl": "https://wagingnonviolence.org/feed/",
+      "format": "rss",
+      "httpUrl": "https://wagingnonviolence.org/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "truthout",
+      "sourceName": "truthout",
+      "feedType": "article",
+      "feedUrl": "https://truthout.org/feed/",
+      "format": "rss",
+      "httpUrl": "https://truthout.org/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "ien",
+      "sourceName": "ien",
+      "feedType": "article",
+      "feedUrl": "https://www.ienearth.org/feed/",
+      "format": "rss",
+      "httpUrl": "https://www.ienearth.org/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "the_intercept",
+      "sourceName": "the-intercept",
+      "feedType": "article",
+      "feedUrl": "https://theintercept.com/feed/?rss",
+      "format": "rss",
+      "httpUrl": "https://theintercept.com/feed/?rss",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "low_tech_magazine",
+      "sourceName": "low-tech-magazine",
+      "feedType": "article",
+      "feedUrl": "https://solar.lowtechmagazine.com/feeds/all-en.atom.xml",
+      "format": "rss",
+      "httpUrl": "https://solar.lowtechmagazine.com/feeds/all-en.atom.xml",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "no_tech_magazine",
+      "sourceName": "no-tech-magazine",
+      "feedType": "article",
+      "feedUrl": "https://www.notechmagazine.com/feed/",
+      "format": "rss",
+      "httpUrl": "https://www.notechmagazine.com/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "permaculture_magazine",
+      "sourceName": "permaculture-magazine",
+      "feedType": "article",
+      "feedUrl": "https://www.permaculture.co.uk/feed/",
+      "format": "rss",
+      "httpUrl": "https://www.permaculture.co.uk/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "resilience",
+      "sourceName": "resilience",
+      "feedType": "article",
+      "feedUrl": "https://www.resilience.org/feed/",
+      "format": "rss",
+      "httpUrl": "https://www.resilience.org/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "reasons_to_be_cheerful",
+      "sourceName": "reasons-to-be-cheerful",
+      "feedType": "article",
+      "feedUrl": "https://reasonstobecheerful.world/feed/",
+      "format": "rss",
+      "httpUrl": "https://reasonstobecheerful.world/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "positive_news",
+      "sourceName": "positive-news",
+      "feedType": "article",
+      "feedUrl": "https://www.positive.news/feed/",
+      "format": "rss",
+      "httpUrl": "https://www.positive.news/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "fix_the_news",
+      "sourceName": "fix-the-news",
+      "feedType": "article",
+      "feedUrl": "https://fixthenews.com/feed/",
+      "format": "rss",
+      "httpUrl": "https://fixthenews.com/feed/",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "name": "progress_network",
+      "sourceName": "the-progress-network",
+      "feedType": "article",
+      "feedUrl": "https://theprogressnetwork.org/feed/",
+      "format": "rss",
+      "httpUrl": "https://theprogressnetwork.org/feed/",
+      "category": "news",
+      "enabled": true
     }
   ],
   "domainSourceMap": {
@@ -248,6 +418,25 @@
     "theregister.com": "the-register",
     "nature.com": "nature",
     "sciencedaily.com": "science-daily",
-    "newscientist.com": "new-scientist"
+    "newscientist.com": "new-scientist",
+    "reactormag.com": "reactor",
+    "locusmag.com": "locus",
+    "atmos.earth": "atmos",
+    "orionmagazine.org": "orion",
+    "emergencemagazine.org": "emergence",
+    "wagingnonviolence.org": "waging-nonviolence",
+    "truthout.org": "truthout",
+    "ienearth.org": "ien",
+    "theintercept.com": "the-intercept",
+    "lowtechmagazine.com": "low-tech-magazine",
+    "notechmagazine.com": "no-tech-magazine",
+    "permaculture.co.uk": "permaculture-magazine",
+    "resilience.org": "resilience",
+    "reasonstobecheerful.world": "reasons-to-be-cheerful",
+    "positive.news": "positive-news",
+    "fixthenews.com": "fix-the-news",
+    "theprogressnetwork.org": "the-progress-network",
+    "techcrunch.com": "techcrunch",
+    "theverge.com": "the-verge"
   }
 }

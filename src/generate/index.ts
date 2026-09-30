@@ -18,6 +18,7 @@ interface ContentEntry {
   sourceName: string;
   type: string;
   externalSourceUrls: string;
+  theme: string;
 }
 
 /**
@@ -44,6 +45,7 @@ async function loadContentForDate(date: string): Promise<ContentEntry[]> {
         sourceName: metadata["source-name"] ?? "",
         type: metadata.type ?? "article",
         externalSourceUrls: metadata["external-source-urls"] ?? "",
+        theme: metadata["theme"] ?? "other",
       });
     } catch (err) {
       log.warn(`Failed to load ${key}`, { error: err instanceof Error ? err.message : String(err) });
@@ -95,6 +97,7 @@ async function loadContentFromR2(
           sourceName: metadata["source-name"] ?? "",
           type: metadata.type ?? "article",
           externalSourceUrls: metadata["external-source-urls"] ?? "",
+          theme: metadata["theme"] ?? "other",
         });
       } catch (err) {
         log.warn(`Failed to load ${key} from R2`, { error: err instanceof Error ? err.message : String(err) });

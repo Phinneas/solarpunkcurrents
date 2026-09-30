@@ -15,10 +15,11 @@ function getClient(): Anthropic {
 }
 
 export const anthropicClient: LLMClient = {
-  async chat({ system, prompt, maxTokens = 8192 }) {
+  async chat({ system, prompt, maxTokens = 8192, effort = "medium" }) {
     const response = await getClient().messages.create({
-      model: "claude-sonnet-4-5-20250929",
+      model: "claude-sonnet-5-5",
       max_tokens: maxTokens,
+      output_config: { effort },
       system: system ?? "",
       messages: [{ role: "user", content: prompt }],
     });
@@ -32,6 +33,7 @@ export async function chatWithClaude(params: {
   system?: string;
   prompt: string;
   maxTokens?: number;
+  effort?: "low" | "medium" | "high" | "max";
 }): Promise<string> {
   return anthropicClient.chat(params);
 }

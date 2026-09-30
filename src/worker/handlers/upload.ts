@@ -12,7 +12,7 @@ export async function handleUploadQueue(batch: MessageBatch<UploadMessage>, env:
   for (const msg of batch.messages) {
     const message = msg.body;
     
-    for (const { item, scrapeResult, externalSources } of message.items) {
+    for (const { item, scrapeResult, externalSources, theme } of message.items) {
       try {
         console.log(`[Stage 4] Uploading: ${item.title}`);
         
@@ -37,6 +37,7 @@ export async function handleUploadQueue(batch: MessageBatch<UploadMessage>, env:
           url: item.url,
           timestamp: item.publishedTimestamp,
           'feed-url': item.feedUrl,
+          theme: theme ?? 'other',
         };
         
         // Upload markdown to R2

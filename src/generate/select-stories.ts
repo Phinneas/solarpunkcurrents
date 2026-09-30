@@ -15,13 +15,13 @@ export interface StorySelectionResult {
 }
 
 export async function selectTopStories(
-  contentItems: Array<{ identifier: string; title: string; sourceName: string; type: string; content: string; externalSourceUrls: string }>,
+  contentItems: Array<{ identifier: string; title: string; sourceName: string; type: string; content: string; externalSourceUrls: string; theme: string }>,
   previousNewsletter?: string
 ): Promise<StorySelectionResult> {
   const contentText = contentItems
     .map(
       (item) =>
-        `<${item.identifier}>\n---\nidentifier: ${item.identifier}\nfriendlyType: ${item.type}\nsourceName: ${item.sourceName}\nexternalSourceUrls: ${item.externalSourceUrls}\n---\n\n${item.content}\n</${item.identifier}>`
+        `<${item.identifier}>\n---\nidentifier: ${item.identifier}\nfriendlyType: ${item.type}\ntheme: ${item.theme}\nsourceName: ${item.sourceName}\nexternalSourceUrls: ${item.externalSourceUrls}\n---\n\n${item.content}\n</${item.identifier}>`
     )
     .join("\n\n");
 
@@ -54,13 +54,15 @@ Apply these principles when evaluating and ranking stories:
 ## Selection Criteria
 
 1. **Impact**: Stories about major developments in solar, renewables, energy storage, or clean energy policy — but measure impact by real-world consequences for communities and the planet, not just stock prices
-2. **Relevance**: Stories directly related to solar energy, wind, geothermal, hydrogen, energy storage, grid modernization, electrification, decarbonization, climate justice, or the solarpunk movement
+2. **Relevance**: Stories about solar, wind, geothermal, hydrogen, storage, grids, electrification, decarbonization, climate justice, or the solarpunk movement — including its culture: fiction, art, music, off-grid living, permaculture, protest, and good news for the planet
 3. **Interest**: Stories that would genuinely interest and excite our audience — community energy projects, environmental justice victories, real-world deployments, resistance movements, and imaginative futures
-4. **Diversity**: Cover different aspects of the energy transition. Aim for a mix of:
-   - Technology vs policy vs community vs culture
+4. **Diversity and balance (required)**: Cover different aspects of the movement, not just energy tech. Aim for a mix of:
+   - Technology vs policy vs community vs culture vs living
    - Solutions/hopeful vs critical/accountability
    - Global vs local
-   - When high-quality research or analysis content is available, try to include at least 1 such piece among the 4 selections
+   - Each item carries a theme field (energy, policy, community, justice, culture, activism, living, good-news, research, other). Use it to balance the picks.
+   - At least 2 of the 4 stories MUST be non-energy themes: culture, community, justice, activism, living, or good-news. At most 2 may be energy, policy, or research tech stories.
+   - Do not lead with a data-center, gadget, or product-launch story unless it carries a real community or justice angle.
 5. **Recency**: Prefer newer developments over older news
 
 ## Content to Evaluate

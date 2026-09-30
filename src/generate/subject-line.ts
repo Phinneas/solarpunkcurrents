@@ -32,7 +32,11 @@ const SUBJECT_LINE_EXAMPLES = `- US solar installs hit record 11.8 GW in Q1
 - The state of solar in 2025 (according to SEIA)
 - Argentina launches national solar push
 - Perovskite tandem cells edge closer to commercial
-- Germany hits 60% renewable electricity milestone`;
+- Germany hits 60% renewable electricity milestone
+- The solarpunk novel club is reimagining the future
+- A repair café is fixing the throwaway economy
+- Neighbors turn a vacant lot into a food forest
+- This town just made mutual aid permanent`;
 
 export async function generateSubjectLine(
   stories: SelectedStory[],

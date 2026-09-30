@@ -8,7 +8,7 @@ const __dirname = dirname(__filename);
 /** Load logo as base64 data URI for email embedding. */
 function loadLogoDataUri() {
     try {
-        const logoPath = join(__dirname, "../../assets/brainscriblr-logo.png");
+        const logoPath = join(__dirname, "../../assets/solarpunk-logo.png");
         const buf = readFileSync(logoPath);
         return `data:image/png;base64,${buf.toString("base64")}`;
     }
@@ -46,7 +46,14 @@ function markdownToBasicHtml(md) {
         .replace(/<p><\/p>/g, "")
         .replace(/<p><hr><\/p>/g, "<hr>")
         .replace(/<p>(<h[1-3]>)/g, "$1")
-        .replace(/(<\/h[1-3]>)<\/p>/g, "$1");
+        .replace(/(<\/h[1-3]>)<\/p>/g, "$1")
+        // Fix list blocks wrapped in paragraphs (block elements can't be inside <p>)
+        .replace(/<p>(<ul>)/g, "$1")
+        .replace(/(<\/ul>)<\/p>/g, "$1")
+        // Remove spurious <br> tags inside lists produced by the \n→<br> pass
+        .replace(/(<\/li>)<br>/g, "$1")
+        .replace(/<br>(<li>)/g, "$1")
+        .replace(/<br>(<\/ul>)/g, "$1");
 }
 export async function sendNewsletterEmail(params) {
     const apiKey = process.env.RESEND_API_KEY;
@@ -54,7 +61,7 @@ export async function sendNewsletterEmail(params) {
         throw new Error("Missing RESEND_API_KEY env var. Get one at https://resend.com");
     }
     const resend = new Resend(apiKey);
-    const from = params.from ?? "BrainScriblr <onboarding@resend.dev>";
+    const from = params.from ?? "Solarpunk Currents <onboarding@resend.dev>";
     const htmlContent = params.htmlBody || wrapInEmailTemplate(markdownToBasicHtml(params.markdownBody));
     log.info("Sending newsletter email", {
         to: Array.isArray(params.to) ? params.to.join(", ") : params.to,
@@ -76,7 +83,7 @@ export async function sendNewsletterEmail(params) {
 function wrapInEmailTemplate(bodyHtml) {
     const logoDataUri = loadLogoDataUri();
     const logoHtml = logoDataUri
-        ? `<img src="${logoDataUri}" alt="BrainScriblr" width="48" height="48" style="display:block;border-radius:10px;" />`
+        ? `<img src="${logoDataUri}" alt="Solarpunk Currents" width="48" height="48" style="display:block;border-radius:10px;" />`
         : "";
     return `<!DOCTYPE html>
 <html>
@@ -109,14 +116,14 @@ function wrapInEmailTemplate(bodyHtml) {
   <div class="email-wrapper">
     <div class="header">
       <!--[if mso]>
-      <span class="header-title-fallback">BrainScriblr</span>
+      <span class="header-title-fallback">Solarpunk Currents</span>
       <![endif]-->
       <!--[if !mso]><!-->
       <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
         <tr>
           ${logoHtml ? `<td style="padding-right: 12px; vertical-align: middle;">${logoHtml}</td>` : ""}
           <td style="vertical-align: middle;">
-            <span class="header-title">BrainScriblr</span>
+            <span class="header-title">Solarpunk Currents</span>
           </td>
         </tr>
       </table>
@@ -126,8 +133,8 @@ function wrapInEmailTemplate(bodyHtml) {
 ${bodyHtml}
     </div>
     <div class="footer">
-      <p>You're receiving this because you subscribed to <a href="#">BrainScriblr</a>.</p>
-      <p>AI news, tools &amp; trends — delivered fresh.</p>
+      <p>You're receiving this because you subscribed to <a href="#">Solarpunk Currents</a>.</p>
+      <p>Solar energy, renewables &amp; the clean energy transition — delivered fresh.</p>
     </div>
   </div>
 </body>

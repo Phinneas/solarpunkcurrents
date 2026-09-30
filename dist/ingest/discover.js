@@ -25,8 +25,8 @@ export async function runDiscovery(existingUrls) {
     log.info(`Searching with ${queries.length} queries...`);
     const allResults = [];
     for (const query of queries) {
-        const results = await firecrawlSearch(query, 5);
-        for (const result of results) {
+        const firecrawlResults = await firecrawlSearch(query, 5);
+        for (const result of firecrawlResults) {
             allResults.push({ query, result });
         }
     }
@@ -85,7 +85,7 @@ export async function runDiscovery(existingUrls) {
             metadata: { url: searchResult.url, title: searchResult.title },
         };
         const externalSources = await extractExternalSources(fakeScrape);
-        return { item, searchResult, externalSources };
+        return { item, searchResult, externalSources, theme: evaluation.theme };
     });
     const evaluated = [];
     for (const r of evalResults) {
@@ -105,7 +105,7 @@ export async function runDiscovery(existingUrls) {
     }
     // Step 5: Upload to S3
     log.info(`Uploading ${evaluated.length} discovered items...`);
-    const uploadResults = await mapConcurrent(evaluated, 10, async ({ item, searchResult, externalSources }) => {
+    const uploadResults = await mapConcurrent(evaluated, 10, async ({ item, searchResult, externalSources, theme }) => {
         const label = `[${item.sourceName}] ${item.title}`;
         const metadata = {
             key: `${item.uploadFileName}.md`,
@@ -118,6 +118,7 @@ export async function runDiscovery(existingUrls) {
             url: item.url,
             timestamp: item.publishedTimestamp,
             "feed-url": item.feedUrl,
+            theme,
         };
         await s3.uploadWithMetadata(item.uploadFileName, searchResult.markdown, "", metadata);
         log.info(`STORED (discovered): ${label}`);

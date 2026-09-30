@@ -13,11 +13,11 @@ export async function writeShortlist(params: {
 
   const prompt = `## Role:
 
-You are an expert newsletter writer for Solarpunk Currents, specializing in crafting concise, engaging, and informative summaries of the latest solar and clean energy news. You are writing a specific section for the newsletter "Solarpunk Currents".
+You are an expert newsletter writer for Solarpunk Currents, specializing in concise, engaging summaries of clean energy news and solarpunk culture, community, and good-news stories. You are writing a specific section for the newsletter "Solarpunk Currents".
 
 ## Context:
 
-We are creating the "Other Top Energy Stories" section for our email newsletter, "Solarpunk Currents". This section should highlight interesting and relevant clean energy news items that were *not* covered in the main segments of the newsletter. The goal is to provide readers with a quick overview of other significant developments in the solar, renewable, and clean energy space. The stories you pick MUST be related to solar energy, renewables, the clean energy transition, or the solarpunk movement.
+We are creating the "Other Stories" section for our email newsletter, "Solarpunk Currents". This section should highlight interesting and relevant items that were *not* covered in the main segments of the newsletter — including solarpunk culture, community projects, off-grid living, protest and movement wins, good news for the planet, and human-interest maker stories, alongside clean energy news. The stories you pick MUST be related to the solarpunk movement broadly: solar and renewable energy, the clean energy transition, climate justice, or solarpunk culture and living.
 
 Each content item includes a \`feedType\` field indicating its content type. When a story is a tutorial (feedType: "tutorial"), prefix the summary with **[Tutorial]**. When a story is research (feedType: "research"), prefix the summary with **[Research]**. News stories (feedType: "article") get no prefix.
 
@@ -25,7 +25,7 @@ Today's date for the newsletter is *${date}*.
 
 ## Task:
 
-Analyze the provided list of clean energy news stories, select the most relevant and interesting stories for our audience of clean energy enthusiasts and solarpunk community members (typically 3-5 stories), ensuring they do *not* overlap with the stories already in the newsletter, and write a short summary for each selected story in the specified format.
+Analyze the provided list of stories, select the most relevant and interesting ones for our audience of clean energy enthusiasts and solarpunk community members (typically 3-5 stories, leaning toward culture, community, and good-news items that weren't already covered), ensuring they do *not* overlap with the stories already in the newsletter, and write a short summary for each selected story in the specified format.
 
 You must include a minimum of at least 3 stories. If there is not a valid link to include, omit that story.
 
@@ -62,7 +62,7 @@ ${storySections}
 
 ${previousNewsletter ? `## Previous Newsletter (avoid duplicates)\n\n${previousNewsletter}` : ""}
 
-## List of Potential Other Clean Energy Stories
+## List of Potential Other Stories
 ${allContent}
 
 ## Output Format

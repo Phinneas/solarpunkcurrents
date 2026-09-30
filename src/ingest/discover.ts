@@ -3,7 +3,7 @@ import { generateSearchQueries } from "./generate-queries.js";
 import { firecrawlSearch, type FirecrawlSearchResult } from "./search.js";
 import { normalizeSearchResult } from "./normalize.js";
 import { mapConcurrent } from "./concurrency.js";
-import { evaluateContentRelevance } from "./evaluate.js";
+import { evaluateContentRelevance, type ContentTheme } from "./evaluate.js";
 import { extractExternalSources } from "./extract-sources.js";
 import * as s3 from "../storage/s3.js";
 import type {
@@ -19,6 +19,7 @@ interface DiscoveredItem {
 
 interface EvaluatedDiscovery extends DiscoveredItem {
   externalSources: string;
+  theme: ContentTheme;
 }
 
 /**
@@ -120,7 +121,7 @@ export async function runDiscovery(existingUrls: Set<string>): Promise<number> {
     };
 
     const externalSources = await extractExternalSources(fakeScrape);
-    return { item, searchResult, externalSources } as EvaluatedDiscovery;
+    return { item, searchResult, externalSources, theme: evaluation.theme } as EvaluatedDiscovery;
   });
 
   const evaluated: EvaluatedDiscovery[] = [];
@@ -144,7 +145,7 @@ export async function runDiscovery(existingUrls: Set<string>): Promise<number> {
   // Step 5: Upload to S3
   log.info(`Uploading ${evaluated.length} discovered items...`);
 
-  const uploadResults = await mapConcurrent(evaluated, 10, async ({ item, searchResult, externalSources }) => {
+  const uploadResults = await mapConcurrent(evaluated, 10, async ({ item, searchResult, externalSources, theme }) => {
     const label = `[${item.sourceName}] ${item.title}`;
 
     const metadata: ContentMetadata = {
@@ -158,6 +159,7 @@ export async function runDiscovery(existingUrls: Set<string>): Promise<number> {
       url: item.url,
       timestamp: item.publishedTimestamp,
       "feed-url": item.feedUrl,
+      theme,
     };
 
     await s3.uploadWithMetadata(
