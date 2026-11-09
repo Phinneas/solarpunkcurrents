@@ -18,11 +18,19 @@ export async function selectTopStories(
   contentItems: Array<{ identifier: string; title: string; sourceName: string; type: string; content: string; externalSourceUrls: string; theme: string }>,
   previousNewsletter?: string
 ): Promise<StorySelectionResult> {
+  // Cap the prompt. Sending every ingested item in full produced ~584K-token
+  // requests that were retried 4x by the queue. Matches the ainewstool limits.
+  const MAX_ITEMS = 15;
+  const MAX_CHARS_PER_ITEM = 2000;
   const contentText = contentItems
-    .map(
-      (item) =>
-        `<${item.identifier}>\n---\nidentifier: ${item.identifier}\nfriendlyType: ${item.type}\ntheme: ${item.theme}\nsourceName: ${item.sourceName}\nexternalSourceUrls: ${item.externalSourceUrls}\n---\n\n${item.content}\n</${item.identifier}>`
-    )
+    .slice(0, MAX_ITEMS)
+    .map((item) => {
+      const content =
+        item.content.length > MAX_CHARS_PER_ITEM
+          ? item.content.substring(0, MAX_CHARS_PER_ITEM) + "...[content truncated]"
+          : item.content;
+      return `<${item.identifier}>\n---\nidentifier: ${item.identifier}\nfriendlyType: ${item.type}\ntheme: ${item.theme}\nsourceName: ${item.sourceName}\nexternalSourceUrls: ${item.externalSourceUrls}\n---\n\n${content}\n</${item.identifier}>`;
+    })
     .join("\n\n");
 
   const prompt = `You are the editor of Solarpunk Currents, a newsletter that covers the clean energy transition through a solarpunk lens. You believe the energy transition is not just about technology and policy — it's about building a more just, equitable, and beautiful world. You center community power, climate justice, and imaginative futures alongside hard energy news.
